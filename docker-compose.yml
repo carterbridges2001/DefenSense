@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    command: uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=development
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/defensense
+    depends_on:
+      - db
+    networks:
+      - defensenet
+
+  db:
+    image: postgres:13
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=defensense
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - defensenet
+    ports:
+      - "5432:5432"
+
+networks:
+  defensenet:
+    driver: bridge
+
+volumes:
+  postgres_data:
